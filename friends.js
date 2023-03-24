@@ -3,30 +3,61 @@
 // const type = document.getElementById("type");
 const habbitContainer = document.getElementById("habbitContainer")
 const habbit = document.getElementById("habbit");
-const output= document.getElementById('output');
+const output = document.getElementById('output');
 const addHabbitButton = document.getElementById("addHabit");
 const addFriendsButton = document.getElementById("addFriends");
-let collectedHabbit = ""; const allHabits=[];
+
+
+const type = document.getElementById("type");
+const addOther = document.getElementById("other");
+
+let collectedHabbit = "";
+let allHabits = {};
+let habitCounter = 0;
 
 
 const form = document.querySelector('form');
 
-//Add Habbit
-function habbitCollector () {
-    collectedHabbit = habbit.value;
-    allHabits.push(collectedHabbit);
-    appendHabbit();
+function other() {
+    if (type.value === "other") {
+        addOther.style.display = "block";
+
+    } else {
+        addOther.style.display = "none";
+    }
 }
- function appendHabbit() {
+
+type.onchange = other;
+
+function habbitCollector() {
+    collectedHabbit = habbit.value;
+    allHabits[habitCounter] = collectedHabbit;
+    // allHabits.push(collectedHabbit);
+    appendHabbit();
+    habitCounter++;
+}
+
+function appendHabbit() {
 
     let habbitBox = document.createElement("p");
     let button = document.createElement("button");
     habbitBox.textContent = collectedHabbit;
     button.textContent = "Delete Habit";
-    button.onclick = () => {button.parentElement.remove()};
+    button.classList.add("btn", "btn-danger");
+    let buttonId = habitCounter;
+    button.onclick = () => {
+        button.parentElement.remove();
+        delete allHabits[buttonId];
+    };
+
     habbitBox.appendChild(button);
     habbitContainer.appendChild(habbitBox);
- }
+}
+
+
+habbit.oninput = () => {
+    addHabbitButton.disabled = habbit.value.length <= 5;
+}
 
 const makePElement = (key, value) => {
     const paraEl = document.createElement('p');
@@ -38,18 +69,41 @@ form.onsubmit = (event) => {
     event.preventDefault();
     // const formValues=[];
     for (let i = 0; i < form.length - 2; i++) {
+        let key;
+        let value;
 
         if (form[i].id === 'habbit') {
-            let array = document.createElement('p');
-            array.textContent = allHabits;
-            output.appendChild(array);
-        } else {
-            // formValues[form[i].name] = form[i].value
-            makePElement(form[i].name, form[i].value)
+            let hobbyEl = document.createElement('p');
+            hobbyEl.textContent = Object.values(allHabits);
+            output.appendChild(hobbyEl);
+            continue;
         }
-        // console.log(form[i].firstName, form[i].value);
+        if (form[i].id === "type") {
+            key = 'Type';
+            if (form[i].value === "other") {
+                // let otherType = document.createElement("p");
+                value = document.getElementById('other').value
+                // output.appendChild(otherType);
+            } else {
+                value = type.value
+            }
+        } else if (form[i].id === "other") {
+            continue;
+        } else {
+            key = form[i].name;
+            value = form[i].value;
+        }
+        makePElement(key, value);
     }
-    console.log(allHabits);
+    clearForm();
+}
+
+function clearForm() {
+    habbitContainer.replaceChildren();
+    allHabits = {};
+    habitCounter = 0;
+
+
 }
 
 addHabbitButton.onclick = habbitCollector
